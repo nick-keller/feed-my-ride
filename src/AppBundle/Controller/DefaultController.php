@@ -2,32 +2,30 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\Post;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use AppBundle\Entity\Post;
 
 class DefaultController extends Controller
 {
+    private $em;
+
     /**
-     * @Route("/", name="homepage")
+     * @Route("/api/users/{userId}", name="find_by_user")
      */
-    public function indexAction(Request $request)
+    public function findByUserAction($userId)
     {
-        // replace this example code with whatever you need
-        return $this->render('default/index.html.twig', [
-            'base_dir' => realpath($this->getParameter('kernel.root_dir').'/..'),
-        ]);
+        return $this->repo()->findByUserId($userId);
     }
 
     /**
-     * @Route("/api/toto", name="test")
+     * @Route("/api/trips/{tripId}", name="find_by_trip")
      */
-    public function testAction(Request $request)
+    public function findByTripAction($tripId)
     {
-        return array("foo" => "bar");
+        return $this->repo()->findByTripId($tripId);
     }
 
 
@@ -49,5 +47,25 @@ class DefaultController extends Controller
         $em->flush();
 
         return array();
+    }
+
+    /**
+     * @return \Doctrine\Common\Persistence\ObjectManager
+     */
+    private function em()
+    {
+        if (is_null($this->em)) {
+            $this->em = $this->getDoctrine()->getManager();
+        }
+
+        return $this->em;
+    }
+
+    /**
+     * @return \AppBundle\Repository\PostRepository
+     */
+    private function repo()
+    {
+        return $this->em()->getRepository('AppBundle:Post');
     }
 }

@@ -52,7 +52,7 @@ class Post
     /**
      * @var array
      *
-     * @ORM\Column(name="users", type="array", nullable=true)
+     * @ORM\Column(name="users", type="simple_array", nullable=true)
      */
     private $users;
 
