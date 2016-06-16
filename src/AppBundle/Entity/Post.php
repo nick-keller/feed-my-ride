@@ -2,6 +2,9 @@
 
 namespace AppBundle\Entity;
 
+use AppBundle\Entity\User;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -24,38 +27,46 @@ class Post
     /**
      * @var string
      *
-     * @ORM\Column(name="url", type="string", length=1000)
+     * @ORM\Column(name="image_url", type="string", length=1000, nullable=true)
      */
-    private $url;
+    private $imageUrl;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="description", type="text", nullable=true)
+     * @ORM\Column(name="text", type="text", nullable=true)
      */
-    private $description;
+    private $text;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="user_id", type="integer")
+     * @ORM\ManyToOne(targetEntity="AppBundle\Entity\User")
      */
-    private $userId;
+    private $author;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="trip_id", type="integer")
+     * @ORM\Column(name="trip_id", type="string")
      */
     private $tripId;
 
     /**
-     * @var array
+     * @var ArrayCollection
      *
-     * @ORM\Column(name="users", type="simple_array", nullable=true)
+     * @ORM\ManyToMany(targetEntity="AppBundle\Entity\User", inversedBy="posts")
      */
     private $users;
 
+
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->users = new ArrayCollection();
+    }
 
     /**
      * Get id
@@ -68,39 +79,39 @@ class Post
     }
 
     /**
-     * Set url
+     * Set image url
      *
-     * @param string $url
+     * @param string $imageUrl
      *
      * @return Post
      */
-    public function setUrl($url)
+    public function setImageUrl($imageUrl)
     {
-        $this->url = $url;
+        $this->imageUrl = $imageUrl;
 
         return $this;
     }
 
     /**
-     * Get url
+     * Get image url
      *
      * @return string
      */
-    public function getUrl()
+    public function getImageUrl()
     {
-        return $this->url;
+        return $this->imageUrl;
     }
 
     /**
      * Set description
      *
-     * @param string $description
+     * @param string $text
      *
      * @return Post
      */
-    public function setDescription($description)
+    public function setText($text)
     {
-        $this->description = $description;
+        $this->text = $text;
 
         return $this;
     }
@@ -110,39 +121,49 @@ class Post
      *
      * @return string
      */
-    public function getDescription()
+    public function getText()
     {
-        return $this->description;
+        return $this->text;
     }
 
     /**
-     * Set userId
+     * Add user
      *
-     * @param integer $userId
+     * @param User $user
      *
      * @return Post
      */
-    public function setUserId($userId)
+    public function addUser(User $user)
     {
-        $this->userId = $userId;
+        $this->users[] = $user;
 
         return $this;
     }
 
     /**
-     * Get userId
+     * Remove user
      *
-     * @return int
+     * @param User $user
      */
-    public function getUserId()
+    public function removeUser(User $user)
     {
-        return $this->userId;
+        $this->users->removeElement($user);
+    }
+
+    /**
+     * Get users
+     *
+     * @return Collection
+     */
+    public function getUsers()
+    {
+        return $this->users;
     }
 
     /**
      * Set tripId
      *
-     * @param integer $tripId
+     * @param string $tripId
      *
      * @return Post
      */
@@ -156,7 +177,7 @@ class Post
     /**
      * Get tripId
      *
-     * @return int
+     * @return string
      */
     public function getTripId()
     {
@@ -164,27 +185,26 @@ class Post
     }
 
     /**
-     * Set users
+     * Set author
      *
-     * @param array $users
+     * @param User $author
      *
      * @return Post
      */
-    public function setUsers($users)
+    public function setAuthor(User $author = null)
     {
-        $this->users = $users;
+        $this->author = $author;
 
         return $this;
     }
 
     /**
-     * Get users
+     * Get author
      *
-     * @return array
+     * @return User
      */
-    public function getUsers()
+    public function getAuthor()
     {
-        return $this->users;
+        return $this->author;
     }
 }
-

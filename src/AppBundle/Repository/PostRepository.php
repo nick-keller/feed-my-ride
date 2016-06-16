@@ -2,6 +2,7 @@
 
 namespace AppBundle\Repository;
 
+use AppBundle\Entity\Post;
 use Doctrine\ORM\EntityRepository;
 
 /**
@@ -13,31 +14,9 @@ use Doctrine\ORM\EntityRepository;
 class PostRepository extends EntityRepository
 {
     /**
-     * Find posts by user ID
-     * @param $userId
-     * @return array
-     */
-    public function findByUserId($userId)
-    {
-        return $this->createQueryBuilder('p')
-            ->orWhere('p.users = :only')
-            ->orWhere('p.users LIKE :first')
-            ->orWhere('p.users LIKE :middle')
-            ->orWhere('p.users LIKE :last')
-            ->setParameters([
-                'only' => $userId,
-                'first' => $userId . ',%',
-                'middle' => '%,' . $userId . ',%',
-                'last' => '%,' . $userId,
-            ])
-            ->getQuery()
-            ->getResult();
-    }
-
-    /**
      * Find posts by trip ID
      * @param $tripId
-     * @return array
+     * @return Post[]
      */
     public function findByTripId($tripId)
     {

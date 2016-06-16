@@ -14,18 +14,22 @@ class DefaultController extends Controller
 
     /**
      * @Route("/api/users/{userId}", name="find_by_user")
+     * @param $userId
+     * @return Post[]
      */
     public function findByUserAction($userId)
     {
-        return $this->repo()->findByUserId($userId);
+        return $this->em()->getRepository('AppBundle:User')->findById($userId)->getPosts();
     }
 
     /**
      * @Route("/api/trips/{tripId}", name="find_by_trip")
+     * @param $tripId
+     * @return Post[]
      */
     public function findByTripAction($tripId)
     {
-        return $this->repo()->findByTripId($tripId);
+        return $this->em()->getRepository('AppBundle:Post')->findByTripId($tripId);
     }
 
 
@@ -36,11 +40,11 @@ class DefaultController extends Controller
     public function postAction(Request $request)
     {
         $post = new Post();
-        $post->setDescription("description");
+        $post->setText("description");
         $post->setTripId(1);
         $post->setUserId(2);
         $post->setUsers(array(1,2,3));
-        $post->setUrl("/tmp/to/img.jpeg");
+        $post->setImageUrl("/tmp/to/img.jpeg");
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($post);
@@ -59,13 +63,5 @@ class DefaultController extends Controller
         }
 
         return $this->em;
-    }
-
-    /**
-     * @return \AppBundle\Repository\PostRepository
-     */
-    private function repo()
-    {
-        return $this->em()->getRepository('AppBundle:Post');
     }
 }
