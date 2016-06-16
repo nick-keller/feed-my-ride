@@ -25,6 +25,6 @@ class DefaultController extends Controller
      */
     public function testAction(Request $request)
     {
-        return new Response(json_encode(array("foo" => "bar")));
+        return array("foo" => "bar");
     }
 }
