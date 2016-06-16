@@ -43,6 +43,13 @@ class Post
     private $userId;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="trip_id", type="integer")
+     */
+    private $tripId;
+
+    /**
      * @var array
      *
      * @ORM\Column(name="users", type="array", nullable=true)
@@ -130,6 +137,30 @@ class Post
     public function getUserId()
     {
         return $this->userId;
+    }
+
+    /**
+     * Set tripId
+     *
+     * @param integer $tripId
+     *
+     * @return Post
+     */
+    public function setTripId($tripId)
+    {
+        $this->tripId = $tripId;
+
+        return $this;
+    }
+
+    /**
+     * Get tripId
+     *
+     * @return int
+     */
+    public function getTripId()
+    {
+        return $this->tripId;
     }
 
     /**
