@@ -3,6 +3,8 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\Post;
+use AppBundle\Entity\User;
+use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -20,7 +22,12 @@ class DefaultController extends Controller
     private $em;
 
     /**
+     * Get all the posts where a User is tagged in
+     *
      * @Route("/api/users/{userId}", name="find_by_user")
+     * @Method({"GET"})
+     *
+     * @ApiDoc()
      * @param $userId
      * @return Post[]
      */
@@ -30,7 +37,12 @@ class DefaultController extends Controller
     }
 
     /**
+     * Get all the posts of a feed
+     *
      * @Route("/api/trips/{tripId}", name="find_by_trip")
+     * @Method({"GET"})
+     *
+     * @ApiDoc()
      * @param $tripId
      * @return Post[]
      */
@@ -41,53 +53,77 @@ class DefaultController extends Controller
 
 
     /**
+     * Add a Post to the trip feed
+     *
      * @Route("/api/post", name="post_action")
      * @Method({"POST"})
+     *
+     * @ApiDoc(
+     *  parameters={
+     *      {"name"="trip_id", "dataType"="string", "required"=true},
+     *      {"name"="author_id", "dataType"="string", "required"=true},
+     *      {"name"="img", "dataType"="file", "required"=false},
+     *      {"name"="text", "dataType"="string", "required"=false},
+     *      {"name"="users", "dataType"="string", "required"=false, "format"="comma separated IDs", "description"="Ids of people tagged in the photo"},
+     *  }
+     * )
+     * @param Request $request
+     * @return Post
      */
     public function postAction(Request $request)
     {
-        // var_dump($request->files->all());
-        // var_dump($request->request->all());exit;
-        $form = $this->createFormBuilder(null, array('csrf_protection' => false))
-            ->add('description', TextType::class)
-            ->add('trip_id',IntegerType::class)
-            ->add('user_id', IntegerType::class)
-            ->add('img', FileType::class)
-            // ->add('users', CollectionType::class, array('entry_type' => IntegerType::class))
-            ->getForm();
+        $post = new Post();
+        $file = $request->files->get('img');
 
-        $form->submit(array_merge($request->request->all(),$request->files->all()));
-        if ($form->isValid()) {
-            $data = $form->getData();
-
-            $file = $data['img'];
-            $fileName = md5(uniqid()).'.'.$file->guessExtension();
-            $file->move(
-                "/tmp",
-                $fileName
-            );
-
-            $post = new Post();
-            $post->setDescription($data['description']);
-            $post->setTripId($data['trip_id']);
-            $post->setUserId($data['user_id']);
-            $post->setUsers(array(1,2,3));
-            $post->setUrl($fileName);
-
-            $em = $this->getDoctrine()->getManager();
-            $em->persist($post);
-            $em->flush();
-
+        if ($file) {
+            $fileName = md5(uniqid()) . '.' . $file->guessExtension();
+            $file->move(__DIR__.'/../../../web/uploads', $fileName);
+            $post->setImageUrl('/uploads'.$fileName);
         }
 
-        foreach ($form->getErrors(true, false) as $error) {
-            echo 'la';
-            var_dump($error->getMessage());
-        }
-        echo 'la';exit;
-        exit;
+        $author = $this->em()->getRepository('AppBundle:User')->findById($request->request->get('author_id'));
 
-        return array();
+        $post->setAuthor($author);
+        $post->setText($request->request->get('text'));
+        $post->setTripId($request->request->get('trip_id'));
+
+        foreach ($this->em()->getRepository('AppBundle:User')->findByIds(explode(',', $request->request->get('users'))) as $user) {
+            $post->addUser($user);
+        }
+
+        $this->em()->persist($post);
+        $this->em()->flush();
+
+        return $post;
+    }
+
+    /**
+     * Create a user in the DB
+     *
+     * @Route("/api/users", name="create_user")
+     * @Method({"POST"})
+     *
+     * @ApiDoc(
+     *  parameters={
+     *      {"name"="id", "dataType"="string", "required"=true},
+     *      {"name"="display_name", "dataType"="string", "required"=true},
+     *      {"name"="picture", "dataType"="string", "required"=true},
+     *  }
+     * )
+     * @param Request $request
+     * @return User
+     */
+    public function createUser(Request $request)
+    {
+        $user = $this->em()->getRepository('AppBundle:User')->findById($request->request->get('id'));
+
+        if (is_null($user)) {
+            $user = new User($request->request->get('id'), $request->request->get('display_name'), $request->request->get('picture'));
+            $this->em()->persist($user);
+            $this->em()->flush();
+        }
+
+        return $user;
     }
 
     /**

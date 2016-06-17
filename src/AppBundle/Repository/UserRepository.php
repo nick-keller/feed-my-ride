@@ -4,6 +4,7 @@ namespace AppBundle\Repository;
 
 use AppBundle\Entity\User;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\NoResultException;
 
 /**
  * UserRepository
@@ -21,10 +22,23 @@ class UserRepository extends EntityRepository
      */
     public function findById($userId)
     {
+        try {
+            return $this->createQueryBuilder('u')
+                ->where('u.id = :id')
+                ->setParameter('id', $userId)
+                ->getQuery()
+                ->getSingleResult();
+        } catch (NoResultException $e) {
+            return null;
+        }
+    }
+
+    public function findByIds(array $ids)
+    {
         return $this->createQueryBuilder('u')
-            ->where('u.id = :id')
-            ->setParameter('id', $userId)
+            ->where('u.id IN (:ids)')
+            ->setParameter('ids', $ids)
             ->getQuery()
-            ->getSingleResult();
+            ->getResult();
     }
 }

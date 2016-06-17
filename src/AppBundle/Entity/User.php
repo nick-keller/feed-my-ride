@@ -17,12 +17,11 @@ use JMS\Serializer\Annotation\SerializedName;
 class User
 {
     /**
-     * @var int
+     * @var string
      * @SerializedName("id_user")
      *
-     * @ORM\Column(name="id", type="integer")
+     * @ORM\Column(name="id", type="string")
      * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
 
@@ -48,13 +47,18 @@ class User
      */
     private $posts;
 
-
     /**
-     * Constructor
+     * User constructor.
+     * @param string $id
+     * @param string $displayName
+     * @param string $picture
      */
-    public function __construct()
+    public function __construct($id = null, $displayName = null, $picture = null)
     {
-        $this->posts = new ArrayCollection();
+        $this->id          = $id;
+        $this->displayName = $displayName;
+        $this->picture     = $picture;
+        $this->posts       = new ArrayCollection();
     }
 
     /**

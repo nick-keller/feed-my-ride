@@ -191,7 +191,7 @@ class Post
      *
      * @return Post
      */
-    public function setAuthor(User $author = null)
+    public function setAuthor(User $author)
     {
         $this->author = $author;
 
