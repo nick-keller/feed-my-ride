@@ -78,7 +78,7 @@ class DefaultController extends Controller
         if ($file) {
             $fileName = md5(uniqid()) . '.' . $file->guessExtension();
             $file->move(__DIR__.'/../../../web/uploads', $fileName);
-            $post->setImageUrl('/uploads'.$fileName);
+            $post->setImageUrl('/uploads/'.$fileName);
         }
 
         $author = $this->em()->getRepository('AppBundle:User')->findById($request->request->get('author_id'));
